@@ -97,8 +97,10 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("user", JSON.stringify(formData));
         user = formData;
         showMessage("Successfully signed up!", "success");
-        window.location.hash = 'profile'; // Navigate to profile page
-        render();
+        setTimeout(function() {
+            window.location.hash = 'profile'; // Navigate to profile page
+            render();
+        }, 500); // Delay in milliseconds
     }
 
     function showMessage(message, type) {
