@@ -1,80 +1,84 @@
 document.addEventListener("DOMContentLoaded", function () {
     const root = document.getElementById("root");
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    let user = storedUser;
+    let user = JSON.parse(localStorage.getItem("user"));
 
     function render() {
-        if (!user) {
-            root.innerHTML = SignUp();
-        } else {
-            root.innerHTML = Profile(user);
+        const hash = window.location.hash.substr(1); // Get hash excluding the "#"
+        switch (hash) {
+            case 'signup':
+                root.innerHTML = SignUp();
+                break;
+            case 'profile':
+                root.innerHTML = user ? Profile(user) : SignUp(); // Redirect to SignUp if user not logged in
+                break;
+            default:
+                root.innerHTML = SignUp(); // Default to SignUp page
+                break;
         }
     }
 
- 
-      
-
-   function SignUp() {
+    function SignUp() {
         return `
-        
-        <div class="header-container">
-            <h4 class="header">Header</h4>
-            <div class="button-container">
-                <button id="signup-btn" class="top-right-btn">Signup</button>
-                <button id="profile-btn" class="top-right-btn">Profile</button>
+            <div class="header-container">
+                <h4 class="header">Header</h4>
+                <div class="button-container">
+                    <button id="signup-btn" class="top-right-btn">Signup</button>
+                    <button id="profile-btn" class="top-right-btn">Profile</button>
+                </div>
             </div>
-        </div>
-        <hr class="spacer">
+            <hr class="spacer">
 
-        
-        
- <h2>Sign Up</h2>
-                <form id="signup-form">
-                    <div class="form-group">
-                        <label for="fullName"></label>
-                        <input type="text" id="fullName" name="fullName" placeholder="Full name">
-                    </div> <hr>
-                    <div class="form-group">
-                        <label for="email"></label>
-                        <input type="email" id="email" name="email" placeholder="Email address">
-                    </div>  <hr>
-                    <div class="form-group">
-                        <label for="password"></label>
-                        <input type="password" id="password" name="password" placeholder="Password">
-                    </div>  <hr>
-                    <div class="form-group">
-                        <label for="confirmPassword"></label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password">
-                    </div>  <hr>
-                    <button type="submit">Sign Up</button>
-                    <div id="message"></div>
-                </form>
-            </div>
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <!-- Your sign-up form HTML here -->
+                <div class="form-group">
+                    <label for="fullName"></label> 
+                    <input type="text" id="fullName" name="fullName" placeholder="Full name">
+                </div> <hr>
+                <div class="form-group">
+                    <label for="email"></label>
+                    <input type="email" id="email" name="email" placeholder="Email address">
+                </div> <hr> 
+                <div class="form-group">
+                    <label for="password"></label>
+                    <input type="password" id="password" name="password" placeholder="Password">
+                </div> <hr>
+                <div class="form-group">
+                    <label for="confirmPassword"></label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password">
+                </div> <hr>
+                <button type="submit">Sign Up</button>
+                <div id="message"></div> 
+            </form>
         `;
     }
 
     function Profile(user) {
         return `
-            <div>
             <div class="header-container">
-            <h4 class="header">Header</h4>
-            <div class="button-container">
-                <button id="signup-btn" class="top-right-btn">Signup</button>
-                <button id="profile-btn" class="top-right-btn">Profile</button>
+                <h4 class="header">Header</h4>
+                <div class="button-container">
+                    <button id="signup-btn" class="top-right-btn">Signup</button>
+                    <button id="profile-btn" class="top-right-btn">Profile</button>
+                </div>
             </div>
-        </div>
-        <hr class="spacer">
-
-                <h2>Profile</h2>
-                <p>Full Name: ${user.fullName}!</p>
-                <p>Email : ${user.email}</p>
-                <p>Password : ${user.password}</p>
-
-                <button id="logout-btn">Logout</button>
-            </div>
+            <hr class="spacer">
+    
+            <h2>Profile</h2>
+            <p>Full Name: ${user.fullName}!</p>
+            <p>Email: ${user.email}</p>
+            <p>Password: ${user.password}</p>
+    
+            <button id="logout-btn">Logout</button>
         `;
     }
-    
+
+    function handleLogout() {
+        localStorage.removeItem("user");
+        user = null;
+        window.location.hash = ''; // Navigate to default route
+        render();
+    }
 
     function handleSignUp(formData) {
         // Check for empty fields
@@ -93,22 +97,15 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("user", JSON.stringify(formData));
         user = formData;
         showMessage("Successfully signed up!", "success");
+        window.location.hash = 'profile'; // Navigate to profile page
         render();
     }
 
-    function handleLogout() {
-        localStorage.removeItem("user");
-        user = null;
-        render();
+    function showMessage(message, type) {
+        const messageElement = document.getElementById("message");
+        messageElement.textContent = message;
+        messageElement.className = "message " + type;
     }
-
-            // Save user data and render profile
-            function showMessage(message, type) {
-                const messageElement = document.getElementById("message");
-                messageElement.textContent = message;
-                messageElement.className = "message " + type;
-            }
-        
 
     root.addEventListener("submit", function (event) {
         event.preventDefault();
@@ -144,8 +141,9 @@ document.addEventListener("DOMContentLoaded", function () {
         user = savedState.user;
     }
 
+    // Add event listener for hashchange to handle routing
+    window.addEventListener('hashchange', render);
+
+    // Initial rendering
     render();
 });
-
-
-
